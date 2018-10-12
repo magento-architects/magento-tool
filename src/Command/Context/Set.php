@@ -2,6 +2,8 @@
 /**
  * Copyright © Magento, Inc. All rights reserved.
  * See COPYING.txt for license details.
+ *
+ * Set current context - all following commands will be executed on this context (instance)
  */
 namespace Magento\Console\Command\Context;
 

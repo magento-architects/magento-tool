@@ -2,6 +2,8 @@
 /**
  * Copyright © Magento, Inc. All rights reserved.
  * See COPYING.txt for license details.
+ *
+ * Adds context (magento instance) to the list of available contexts.
  */
 namespace Magento\Console\Command\Context;
 

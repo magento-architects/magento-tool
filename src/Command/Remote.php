@@ -11,8 +11,15 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class Remote extends Command
 {
+    /**
+     * @var \stdClass
+     */
     private $contextData;
 
+    /**
+     * @param \stdClass $contextData
+     * @param null $name
+     */
     public function __construct($contextData, $name = null)
     {
         $this->contextData = $contextData;

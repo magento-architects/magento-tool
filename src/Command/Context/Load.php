@@ -2,6 +2,8 @@
 /**
  * Copyright © Magento, Inc. All rights reserved.
  * See COPYING.txt for license details.
+ *
+ * Load command metadata from current context (instance)
  */
 namespace Magento\Console\Command\Context;
 

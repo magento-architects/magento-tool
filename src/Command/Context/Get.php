@@ -2,6 +2,8 @@
 /**
  * Copyright © Magento, Inc. All rights reserved.
  * See COPYING.txt for license details.
+ *
+ * Display current context - the name of the instance on which all commands will be executed
  */
 namespace Magento\Console\Command\Context;
 
