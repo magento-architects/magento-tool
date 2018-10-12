@@ -1,4 +1,4 @@
-#Magento administrative tool
+# Magento administrative tool
 
 Used to perform administrative tasks on Magento instances remotely.
 
