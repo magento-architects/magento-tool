@@ -20,7 +20,7 @@ This tool only works with magento instances that support remote calls and metada
 
 #### Security
 
-As, remote call endpoints provide wide access to magento instance, they MUST be exposed through separate protected network interface.
+As remote call endpoints provide wide access to magento instance, they MUST be exposed through separate protected network interface.
    
 ### Evolution plan
 
