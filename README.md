@@ -16,7 +16,9 @@ The tool itself only provides following commands:
    
 ### Magento instance endpoints
 
-This tool only works with magento instances that support remote calls and metadata sharing
+This tool only works with magento instances that support remote calls and metadata sharing.
+
+Use https://gist.github.com/antonkril/405d5025038fbc0d333dcd59482e58f4 in root folder for metadata sharing.
 
 #### Security
 
