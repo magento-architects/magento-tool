@@ -7,19 +7,59 @@
  */
 namespace Magento\Console\Command\Context;
 
-use Magento\Console\Command\Context;
+use Magento\Console\ContextList;
+use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-class GetList extends Context
+class GetList extends Command
 {
+    /**
+     * @var ContextList
+     */
+    private $contextList;
+
+    /**
+     * @param ContextList $contextList
+     */
+    public function __construct(ContextList $contextList)
+    {
+        $this->contextList = $contextList;
+
+        parent::__construct();
+    }
+
+    /**
+     * @inheritdoc
+     */
+    protected function configure(): void
+    {
+        $this->setName('context:list');
+
+        parent::configure();
+    }
+
+    /**
+     * @inheritdoc
+     */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $contextList = $this->contextList->read();
-        $current = $this->contextList->getCurrent();
-        $strings = array_map(function ($key, $value) use ($current) {
-            return ($current === $key ? '* ' : '  ') . str_pad($key, 15) . $value;
-        }, array_keys($contextList), array_map(function ($item) { return $item->url; }, $contextList));
-        $output->write(join("\n", $strings) . "\n");
+        $rows = [];
+
+        foreach ($this->contextList->getAll() as $name => $data) {
+            $rows[] = [$name, $data->get('url')];
+        }
+
+        if (!$rows) {
+            $output->writeln('<error>No defined contexts.</error>');
+
+            return;
+        }
+
+        $table = new Table($output);
+        $table->setHeaders(['Name', 'URL'])
+            ->setRows($rows)
+            ->render();
     }
 }

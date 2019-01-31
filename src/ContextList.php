@@ -7,89 +7,128 @@
  */
 namespace Magento\Console;
 
+use Illuminate\Config\Repository;
+use Magento\Console\Config\Reader;
+use Magento\Console\Config\Writer;
+
 class ContextList
 {
     /**
-     * @var string
+     * @var Reader
      */
-    private $listPersistenceFile;
+    private $reader;
 
     /**
-     * @var string
+     * @var Writer
      */
-    private $currentContextFile;
+    private $writer;
 
     /**
-     * @var string
+     * @param Reader $reader
+     * @param Writer $writer
      */
-    private $current = null;
-
-    /**
-     * @var [string]
-     */
-    private $list = null;
-
-    /**
-     * @param $homeDir
-     */
-    public function __construct($homeDir)
+    public function __construct(Reader $reader, Writer $writer)
     {
-        $this->listPersistenceFile = $homeDir . DIRECTORY_SEPARATOR . 'contexts';
-        $this->currentContextFile = $homeDir . DIRECTORY_SEPARATOR . 'context';
+        $this->reader = $reader;
+        $this->writer = $writer;
     }
 
     /**
-     * Read list of contexts available to work with
-     *
-     * @return array
-     */
-    public function read() : array
-    {
-        if ($this->list !== null) {
-            return $this->list;
-        }
-        $contexts = [];
-        if (is_readable($this->listPersistenceFile)) {
-            $contexts = json_decode(file_get_contents($this->listPersistenceFile));
-        }
-        $this->list = (array) $contexts;
-        return $this->list;
-    }
-
-    /**
-     * Persist available context list
-     *
-     * @param [string] $contexts
+     * @param string $name
      * @return bool
      */
-    public function write(array $contexts) : bool
+    public function has(string $name): bool
     {
-        $this->list = $contexts;
-        return !!file_put_contents($this->listPersistenceFile, json_encode($contexts));
+        $config = $this->reader->read();
+
+        return isset($config['contexts'][$name]);
     }
 
     /**
-     * @return string
+     * @param string $name
+     * @param string $url
+     * @param array $commands
      */
-    public function getCurrent() : ?string
+    public function add(string $name, string $url, array $commands): void
     {
-        if ($this->current !== null) {
-            return $this->current;
+        $config = $this->reader->read();
+        $config['contexts'][$name] = [
+            'name' => $name,
+            'url' => $url,
+            'commands' => $commands
+        ];
+
+        $this->writer->write($config);
+    }
+
+    /**
+     * @param string $name
+     */
+    public function remove(string $name): void
+    {
+        $config = $this->reader->read();
+
+        unset($config['contexts'][$name]);
+
+        if (isset($config['current']) && $config['current'] === $name) {
+            unset($config['current']);
         }
-        if (is_readable($this->currentContextFile)) {
-            return json_decode(file_get_contents($this->currentContextFile));
+
+        $this->writer->write($config);
+    }
+
+    /**
+     * @return null|array
+     */
+    public function getCurrent(): ?Repository
+    {
+        $config = $this->reader->read();
+        $current = $this->getCurrentName();
+
+        return $current ? new Repository($config['contexts'][$current]) : null;
+    }
+
+    /**
+     * @return null|string
+     */
+    public function getCurrentName(): ?string
+    {
+        $config = $this->reader->read();
+
+        return $config['current'] ?? null;
+    }
+
+    /**
+     * @return Repository[]
+     */
+    public function getAll(): array
+    {
+        $config = $this->reader->read();
+
+        if (!array_key_exists('contexts', $config)) {
+            return [];
         }
-        return null;
+
+        $contexts = [];
+
+        foreach ($config['contexts'] as $name => $context) {
+            $contexts[$name] = new Repository($context);
+        }
+
+        return $contexts;
     }
 
     /**
      * Set and persist current context. All following commands will be executed in this context
+     *
      * @param string $name
      * @return bool|int
      */
-    public function setCurrent(string $name) : bool
+    public function setCurrent(string $name): bool
     {
-        $this->current = $name;
-        return !!file_put_contents($this->currentContextFile, json_encode($name));
+        $config = $this->reader->read();
+        $config['current'] = $name;
+
+        return $this->writer->write($config);
     }
 }

@@ -5,6 +5,8 @@
  */
 namespace Magento\Console\Command;
 
+use GuzzleHttp\Client;
+use Magento\Console\ContextList;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -12,33 +14,42 @@ use Symfony\Component\Console\Output\OutputInterface;
 class Remote extends Command
 {
     /**
-     * @var \stdClass
+     * @var ContextList
      */
-    private $contextData;
+    private $contextList;
 
     /**
-     * @param \stdClass $contextData
-     * @param null $name
+     * @param ContextList $contextList
      */
-    public function __construct($contextData, $name = null)
+    public function __construct(ContextList $contextList)
     {
-        $this->contextData = $contextData;
-        parent::__construct($name);
+        $this->contextList = $contextList;
+
+        parent::__construct();
     }
 
+    /**
+     * @param InputInterface $input
+     * @param OutputInterface $output
+     * @return int|null|void
+     */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $postData = json_encode(['arguments' => $input->getArguments(), 'options' => $input->getOptions()]);
-        $ch = curl_init();
-        curl_setopt_array($ch, [
-            CURLOPT_URL => $this->contextData->url . '/manage.php',
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_POST => true,
-            CURLOPT_POSTFIELDS => $postData,
-            CURLOPT_FOLLOWLOCATION => true
+        $context = $this->contextList->getCurrent();
+        $url = $context['url'] . '/manage.php';
+        $client = new Client();
+
+        $response = $client->post($url, [
+            'form_params' => [
+                'arguments' => $input->getArguments(),
+                'options' => [] //$input->getOptions()
+            ]
         ]);
-        $result = curl_exec($ch);
-        $output->writeln($result);
-        curl_close($ch);
+
+        $tpl = $response->getStatusCode() === 200
+            ? '<info>%s</info>'
+            : '<error>%s</error>';
+
+        $output->writeln(sprintf($tpl, $response->getBody()->getContents()));
     }
 }

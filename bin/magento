@@ -1,0 +1,15 @@
+#!/usr/bin/env php
+<?php
+/**
+ * Copyright © Magento, Inc. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+require __DIR__ . '/../bootstrap.php';
+
+$handler = new \Magento\Console\Application\ErrorHandler();
+set_error_handler([$handler, 'handle']);
+
+$container = new \Illuminate\Container\Container();
+$container->make(\Magento\Console\Application::class, [
+    'container' => $container
+])->run();
