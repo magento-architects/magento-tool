@@ -8,11 +8,11 @@ Actual commands reside on Magento instances. When a new instance (context) is ad
 
 The tool itself only provides following commands:
 
-   * ```magento instance:add [name] [url]``` - register a new managed remote instance
-   * ```magento instance:remove [name]``` - unregister a managed instance from the tool instance list
-   * ```magento instance:list``` - list registered remote instances
-   * ```magento instance:update``` - load a list of commands supported by the instance
-   * ```magento context:set [name]``` - select the default instance to be used in commands
+   * ```./bin/magento instance:add [name] [url]``` - register a new managed remote instance
+   * ```./bin/magento instance:remove [name]``` - unregister a managed instance from the tool instance list
+   * ```./bin/magento instance:list``` - list registered remote instances
+   * ```./bin/magento instance:update``` - load a list of commands supported by the instance
+   * ```./bin/magento context:set [name]``` - select the default instance to be used in commands
    
 ### Magento instance endpoints
 
