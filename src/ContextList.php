@@ -49,13 +49,15 @@ class ContextList
      * @param string $url
      * @param array $commands
      */
-    public function add(string $name, string $url, array $commands): void
+    public function add(string $name, string $url, array $commands, string $publicKey, string $privateKey): void
     {
         $config = $this->reader->read();
         $config['contexts'][$name] = [
             'name' => $name,
             'url' => $url,
-            'commands' => $commands
+            'commands' => $commands,
+            'public_key' => $publicKey,
+            'private_key' => $privateKey
         ];
 
         $this->writer->write($config);

@@ -73,14 +73,14 @@ class Application extends \Symfony\Component\Console\Application
 
         $commands = [];
 
-        foreach ($context->get('commands') as $data) {
+        foreach ($context->get('commands') as $cName => $cData) {
             /** @var Command\Remote $command */
             $command = $this->container->make(Command\Remote::class);
-            $command->setName($data['name'])
-                ->setDescription($data['description'])
-                ->setHelp($data['help']);
+            $command->setName($cName)
+                ->setDescription($cData['description'])
+                ->setHelp($cData['help']);
 
-            foreach ($data['definition']['arguments'] as $aName => $aData) {
+            foreach ($cData['definition']['arguments'] as $aName => $aData) {
                 $command->addArgument(
                     $aName,
                     $aData['mode'] ?? InputArgument::OPTIONAL,
@@ -88,7 +88,7 @@ class Application extends \Symfony\Component\Console\Application
                 );
             }
 
-            foreach ($data['definition']['options'] as $oName => $oData) {
+            foreach ($cData['definition']['options'] as $oName => $oData) {
                 $command->addOption(
                     $oName,
                     $oData['shortcut'] ?? null,

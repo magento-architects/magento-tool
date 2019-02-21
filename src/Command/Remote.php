@@ -6,6 +6,7 @@
 namespace Magento\Console\Command;
 
 use GuzzleHttp\Client;
+use Magento\Console\Auth\Generator;
 use Magento\Console\ContextList;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -19,11 +20,18 @@ class Remote extends Command
     private $contextList;
 
     /**
-     * @param ContextList $contextList
+     * @var Generator
      */
-    public function __construct(ContextList $contextList)
+    private $generator;
+
+    /**
+     * @param ContextList $contextList
+     * @param Generator $generator
+     */
+    public function __construct(ContextList $contextList, Generator $generator)
     {
         $this->contextList = $contextList;
+        $this->generator = $generator;
 
         parent::__construct();
     }
@@ -36,14 +44,24 @@ class Remote extends Command
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $context = $this->contextList->getCurrent();
-        $url = $context['url'] . '/manage.php';
+        $url = $context['url'] . '/remote';
         $client = new Client();
 
+        $publicKey = $context['public_key'];
+        $privateKey = $context['private_key'];
+
+        $params = [
+            'name' => $this->getName(),
+            'arguments' => $input->getArguments(),
+            'options' => $input->getOptions(),
+            'public_key' => $publicKey,
+            'type' => 'run'
+        ];
+
+        $sign = $this->generator->generate($publicKey, $privateKey, $params);
+
         $response = $client->post($url, [
-            'form_params' => [
-                'arguments' => $input->getArguments(),
-                'options' => [] //$input->getOptions()
-            ]
+            'form_params' => $params + ['sign' => $sign]
         ]);
 
         $tpl = $response->getStatusCode() === 200
