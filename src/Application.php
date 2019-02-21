@@ -65,12 +65,11 @@ class Application extends \Symfony\Component\Console\Application
      */
     private function fetchMagentoCommands(): array
     {
-        $context = $this->contextList->getCurrent();
-
-        if (!$context) {
+        if (!$this->contextList->getCurrentName()) {
             return [];
         }
 
+        $context = $this->contextList->getCurrent();
         $commands = [];
 
         foreach ($context->get('commands') as $cName => $cData) {

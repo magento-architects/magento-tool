@@ -48,7 +48,12 @@ class GetList extends Command
         $rows = [];
 
         foreach ($this->contextList->getAll() as $name => $data) {
-            $rows[] = [$name, $data->get('url')];
+            $rows[] = [
+                $name,
+                $data->get('url'),
+                $data->get('public_key'),
+                $data->get('private_key')
+            ];
         }
 
         if (!$rows) {
@@ -58,7 +63,7 @@ class GetList extends Command
         }
 
         $table = new Table($output);
-        $table->setHeaders(['Name', 'URL'])
+        $table->setHeaders(['Name', 'URL', 'Public key', 'Private key'])
             ->setRows($rows)
             ->render();
     }

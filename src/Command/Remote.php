@@ -47,8 +47,8 @@ class Remote extends Command
         $url = $context['url'] . '/remote';
         $client = new Client();
 
-        $publicKey = $context['public_key'];
-        $privateKey = $context['private_key'];
+        $publicKey = $context->get('public_key');
+        $privateKey = $context->get('private_key');
 
         $params = [
             'name' => $this->getName(),

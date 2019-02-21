@@ -30,3 +30,4 @@ As remote call endpoints provide wide access to magento instance, they MUST be e
 * Add Magento commands to mange tokens in Magento module
 * Improve stability
 * Fix options transfer
+* Optimize IO operations

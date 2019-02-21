@@ -80,14 +80,26 @@ class ContextList
     }
 
     /**
-     * @return null|array
+     * @return Repository
      */
-    public function getCurrent(): ?Repository
+    public function getCurrent(): Repository
     {
         $config = $this->reader->read();
         $current = $this->getCurrentName();
 
-        return $current ? new Repository($config['contexts'][$current]) : null;
+        if (!$current) {
+            throw new \RuntimeException('Current context not set');
+        }
+
+        return new Repository($config['contexts'][$current]);
+    }
+
+    /**
+     * @return bool
+     */
+    public function hasCurrent(): bool
+    {
+        return $this->getCurrentName() !== null;
     }
 
     /**
