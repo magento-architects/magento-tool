@@ -7,11 +7,12 @@ namespace Magento\Console;
 
 use Illuminate\Contracts\Container\Container;
 use Magento\Console\Command;
+use Magento\Console\Context\ContextList;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputOption;
 
 /**
- * Class Application.
+ * General application
  */
 class Application extends \Symfony\Component\Console\Application
 {
@@ -43,15 +44,14 @@ class Application extends \Symfony\Component\Console\Application
     protected function getDefaultCommands(): array
     {
         $stdCommands = [
-            $this->container->make(Command\Context\Get::class),
-            $this->container->make(Command\Context\Get::class),
-            $this->container->make(Command\Context\GetList::class),
-            $this->container->make(Command\Context\Add::class),
-            $this->container->make(Command\Context\Remove::class),
-            $this->container->make(Command\Context\Set::class)
+            $this->container->make(Command\Context\GetCommand::class),
+            $this->container->make(Command\Context\GetCommand::class),
+            $this->container->make(Command\Context\ListCommand::class),
+            $this->container->make(Command\Context\AddCommand::class),
+            $this->container->make(Command\Context\RemoveCommand::class),
+            $this->container->make(Command\Context\SetCommand::class)
         ];
         $magentoCommands = $this->fetchMagentoCommands();
-
 
         return array_merge(
             parent::getDefaultCommands(),

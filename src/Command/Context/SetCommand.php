@@ -3,18 +3,24 @@
  * Copyright © Magento, Inc. All rights reserved.
  * See COPYING.txt for license details.
  *
- * Retrieve the list of managed instances (contexts)
+ * Set current context - all following commands will be executed on this context (instance)
  */
 namespace Magento\Console\Command\Context;
 
-use Magento\Console\ContextList;
+use Magento\Console\Context\ContextList;
 use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Console\Helper\Table;
+use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-class GetList extends Command
+/**
+ * Switch context.
+ */
+class SetCommand extends Command
 {
+    public const NAME = 'context:set';
+    public const ARG_NAME = 'name';
+
     /**
      * @var ContextList
      */
@@ -35,9 +41,9 @@ class GetList extends Command
      */
     protected function configure(): void
     {
-        $this->setName('context:list');
-
-        parent::configure();
+        $this->setName(self::NAME)
+            ->setDescription('Switch current context')
+            ->addArgument(self::ARG_NAME, InputArgument::REQUIRED);
     }
 
     /**
@@ -45,26 +51,18 @@ class GetList extends Command
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $rows = [];
+        $name = $input->getArgument('name');
 
-        foreach ($this->contextList->getAll() as $name => $data) {
-            $rows[] = [
-                $name,
-                $data->get('url'),
-                $data->get('public_key'),
-                $data->get('private_key')
-            ];
-        }
-
-        if (!$rows) {
-            $output->writeln('<error>No defined contexts.</error>');
+        if (!$this->contextList->has($name)) {
+            $output->writeln(sprintf('<error>Context "%s" does not exists</error>', $name));
 
             return;
         }
 
-        $table = new Table($output);
-        $table->setHeaders(['Name', 'URL', 'Public key', 'Private key'])
-            ->setRows($rows)
-            ->render();
+        $this->contextList->setCurrent(
+            $input->getArgument('name')
+        );
+
+        $output->writeln('<info>Context switched</info>');
     }
 }

@@ -5,33 +5,36 @@
  */
 namespace Magento\Console\Command;
 
-use GuzzleHttp\Client;
-use Magento\Console\Auth\Generator;
-use Magento\Console\ContextList;
+use Magento\Console\Client\Client;
+use Magento\Console\Client\ClientFactory;
+use Magento\Console\Context\ContextList;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
+/**
+ * Generic remote command
+ */
 class Remote extends Command
 {
+    /**
+     * @var ClientFactory
+     */
+    private $clientFactory;
+
     /**
      * @var ContextList
      */
     private $contextList;
 
     /**
-     * @var Generator
-     */
-    private $generator;
-
-    /**
+     * @param ClientFactory $clientFactory
      * @param ContextList $contextList
-     * @param Generator $generator
      */
-    public function __construct(ContextList $contextList, Generator $generator)
+    public function __construct(ClientFactory $clientFactory, ContextList $contextList)
     {
+        $this->clientFactory = $clientFactory;
         $this->contextList = $contextList;
-        $this->generator = $generator;
 
         parent::__construct();
     }
@@ -43,31 +46,23 @@ class Remote extends Command
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $context = $this->contextList->getCurrent();
-        $url = $context['url'] . '/remote';
-        $client = new Client();
+        $client = $this->clientFactory->create();
 
-        $publicKey = $context->get('public_key');
-        $privateKey = $context->get('private_key');
-
-        $params = [
-            'name' => $this->getName(),
-            'arguments' => $input->getArguments(),
-            'options' => $input->getOptions(),
-            'public_key' => $publicKey,
-            'type' => 'run'
-        ];
-
-        $sign = $this->generator->generate($publicKey, $privateKey, $params);
-
-        $response = $client->post($url, [
-            'form_params' => $params + ['sign' => $sign]
-        ]);
+        $response = $client->post(
+            $this->contextList->getCurrent()->get('url'),
+            $this->contextList->getCurrent()->get('key'),
+            Client::TYPE_RUN,
+            [
+                'name' => $this->getName(),
+                'arguments' => $input->getArguments(),
+                'options' => $input->getOptions()
+            ]
+        );
 
         $tpl = $response->getStatusCode() === 200
-            ? '<info>%s</info>'
+            ? '%s'
             : '<error>%s</error>';
 
-        $output->writeln(sprintf($tpl, $response->getBody()->getContents()));
+        $output->write(sprintf($tpl, $response->getBody()->getContents()));
     }
 }

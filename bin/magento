@@ -10,6 +10,7 @@ $handler = new \Magento\Console\Application\ErrorHandler();
 set_error_handler([$handler, 'handle']);
 
 $container = new \Illuminate\Container\Container();
+$container->instance(\Illuminate\Contracts\Container\Container::class, $container);
 $container->make(\Magento\Console\Application::class, [
     'container' => $container
 ])->run();

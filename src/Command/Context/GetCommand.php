@@ -3,17 +3,19 @@
  * Copyright © Magento, Inc. All rights reserved.
  * See COPYING.txt for license details.
  *
- * Set current context - all following commands will be executed on this context (instance)
+ * Display current context - the name of the instance on which all commands will be executed
  */
 namespace Magento\Console\Command\Context;
 
-use Magento\Console\ContextList;
+use Magento\Console\Context\ContextList;
 use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-class Set extends Command
+/**
+ * Display current context
+ */
+class GetCommand extends Command
 {
     /**
      * @var ContextList
@@ -35,25 +37,25 @@ class Set extends Command
      */
     protected function configure(): void
     {
-        $this->setName('context:set')
-            ->addArgument('name', InputArgument::REQUIRED);
+        $this->setName('context')
+            ->setDescription('Display current context');
+
+        parent::configure();
     }
 
     /**
-     * @inheritdoc
+     * @param InputInterface $input
+     * @param OutputInterface $output
+     * @return int|null|void
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $name = $input->getArgument('name');
-
-        if (!$this->contextList->has($name)) {
-            $output->writeln(sprintf('<error>Context "%s" does not exists</error>', $name));
+        if ($context = $this->contextList->getCurrentName()) {
+            $output->writeln($context);
 
             return;
         }
 
-        $this->contextList->setCurrent($input->getArgument('name'));
-
-        $output->writeln('<info>Context loaded</info>');
+        $output->writeln('<error>No context set.</error>');
     }
 }

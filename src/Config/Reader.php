@@ -5,10 +5,27 @@
  */
 namespace Magento\Console\Config;
 
+use Illuminate\Filesystem\Filesystem;
 use Symfony\Component\Yaml\Yaml;
 
+/**
+ * Read the application config
+ */
 class Reader
 {
+    /**
+     * @var Filesystem
+     */
+    private $filesystem;
+
+    /**
+     * @param Filesystem $filesystem
+     */
+    public function __construct(Filesystem $filesystem)
+    {
+        $this->filesystem = $filesystem;
+    }
+
     /**
      * @return array
      */
@@ -16,7 +33,7 @@ class Reader
     {
         $configFile = HOME_DIR . '/config.yaml';
 
-        if (@file_exists($configFile)) {
+        if ($this->filesystem->exists($configFile)) {
             return Yaml::parseFile($configFile);
         }
 

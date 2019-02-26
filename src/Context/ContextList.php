@@ -5,12 +5,15 @@
  *
  * List of managed contexts (instances)
  */
-namespace Magento\Console;
+namespace Magento\Console\Context;
 
 use Illuminate\Config\Repository;
 use Magento\Console\Config\Reader;
 use Magento\Console\Config\Writer;
 
+/**
+ * Context repository.
+ */
 class ContextList
 {
     /**
@@ -47,17 +50,17 @@ class ContextList
     /**
      * @param string $name
      * @param string $url
+     * @param string $key
      * @param array $commands
      */
-    public function add(string $name, string $url, array $commands, string $publicKey, string $privateKey): void
+    public function add(string $name, string $url, string $key, array $commands): void
     {
         $config = $this->reader->read();
         $config['contexts'][$name] = [
             'name' => $name,
             'url' => $url,
             'commands' => $commands,
-            'public_key' => $publicKey,
-            'private_key' => $privateKey
+            'key' => $key,
         ];
 
         $this->writer->write($config);
@@ -133,7 +136,8 @@ class ContextList
     }
 
     /**
-     * Set and persist current context. All following commands will be executed in this context
+     * Set and persist current context.
+     * All following commands will be executed in this context
      *
      * @param string $name
      * @return bool|int
