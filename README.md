@@ -22,7 +22,7 @@ Use https://gist.github.com/antonkril/405d5025038fbc0d333dcd59482e58f4 in root f
 
 #### Security
 
-As remote call endpoints provide wide access to magento instance, they MUST be exposed through separate protected network interface.
+The prototype MUST NOT be used in production systems.
    
 ### Evolution plan
 
