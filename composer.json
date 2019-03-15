@@ -1,13 +1,29 @@
 {
+    "name": "magento/magento-tool",
     "description": "Magento Console Client",
+    "type": "project",
+    "license": [
+        "OSL-3.0",
+        "AFL-3.0"
+    ],
+    "config": {
+        "sort-packages": true
+    },
     "require": {
         "php": "^7.1.3",
-        "symfony/console": "^4.1",
+        "ext-curl": "*",
         "ext-json": "*",
-        "ext-curl": "*"
+        "illuminate/config": "^5.7",
+        "illuminate/container": "^5.7",
+        "illuminate/filesystem": "^5.7",
+        "symfony/console": "^4.1",
+        "symfony/process": "^4.2",
+        "symfony/yaml": "^4.2"
     },
     "autoload": {
-        "psr-4": { "Magento\\Console\\": "src/" },
+        "psr-4": {
+            "Magento\\Console\\": "src/"
+        },
         "exclude-from-classmap": [
             "/Tests/"
         ]

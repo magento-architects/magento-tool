@@ -8,23 +8,33 @@ Actual commands reside on Magento instances. When a new instance (context) is ad
 
 The tool itself only provides following commands:
 
-   * ```magento instance:add [name] [url]``` - register a new managed remote instance
-   * ```magento instance:remove [name]``` - unregister a managed instance from the tool instance list
-   * ```magento instance:list``` - list registered remote instances
-   * ```magento instance:update``` - load a list of commands supported by the instance
-   * ```magento context:set [name]``` - select the default instance to be used in commands
+   * `./bin/magento instance:add [name] [type] [url]` - register a new managed remote instance
+   * `./bin/magento instance:remove [name]` - unregister a managed instance from the tool instance list
+   * `./bin/magento instance:list` - list registered remote instances
+   * `./bin/magento instance:get` - show current context
+   * `./bin/magento context:set [name]` - select the default instance to be used in commands
    
-### Magento instance endpoints
+#### Remote types
 
-This tool only works with magento instances that support remote calls and metadata sharing.
+Tool works with both remote and local calls.
 
-Use https://gist.github.com/antonkril/405d5025038fbc0d333dcd59482e58f4 in root folder for metadata sharing.
+### Add remote context:
 
+```bash
+./bin/magento context:add cloud remote <some_ssh_url>
+```
+
+### Add local context:
+
+```bash
+./bin/magento context:add local local <some_local_path>
+```
+   
 #### Security
 
-The prototype MUST NOT be used in production systems.
+The tool is using SSH for remote calls.
    
 ### Evolution plan
 
-* Add authentication
 * Add install/deploy commands for standard environments (local, docker, vagrant, kubernetes)
+* Optimize IO operations
