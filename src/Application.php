@@ -5,6 +5,7 @@
  */
 namespace Magento\Console;
 
+use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Contracts\Container\Container;
 use Magento\Console\Command;
 use Magento\Console\Context\ContextList;
@@ -39,7 +40,8 @@ class Application extends \Symfony\Component\Console\Application
     }
 
     /**
-     * @inheritdoc
+     * @return array
+     * @throws BindingResolutionException
      */
     protected function getDefaultCommands(): array
     {
@@ -62,6 +64,7 @@ class Application extends \Symfony\Component\Console\Application
 
     /**
      * @return array
+     * @throws BindingResolutionException
      */
     private function fetchMagentoCommands(): array
     {
@@ -72,10 +75,14 @@ class Application extends \Symfony\Component\Console\Application
         $context = $this->contextList->getCurrent();
         $commands = [];
 
-        foreach ($context->get('commands') as $cName => $cData) {
+        foreach ($context->get('commands') as $cData) {
+            if (in_array($cData['name'], ['list', 'help'])) {
+                continue;
+            }
+
             /** @var Command\Remote $command */
             $command = $this->container->make(Command\Remote::class);
-            $command->setName($cName)
+            $command->setName($cData['name'])
                 ->setDescription($cData['description'])
                 ->setHelp($cData['help']);
 
@@ -88,6 +95,10 @@ class Application extends \Symfony\Component\Console\Application
             }
 
             foreach ($cData['definition']['options'] as $oName => $oData) {
+                if (in_array($oName, ['help', 'quiet', 'verbose', 'version', 'ansi', 'no-ansi', 'no-interaction'])) {
+                    continue;
+                }
+
                 $command->addOption(
                     $oName,
                     $oData['shortcut'] ?? null,

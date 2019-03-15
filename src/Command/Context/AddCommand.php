@@ -7,24 +7,23 @@
  */
 namespace Magento\Console\Command\Context;
 
-use Magento\Console\Client\Client;
-use Magento\Console\Client\ClientFactory;
 use Magento\Console\Context\ContextList;
+use Magento\Console\Shell\ShellFactory;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
-use GuzzleHttp\Exception\GuzzleException;
 
 /**
  * Add new context
  */
 class AddCommand extends Command
 {
+    private const NAME = 'context:add';
     private const ARG_NAME = 'name';
+    private const ARG_TYPE = 'type';
     private const ARG_URL = 'url';
-    private const ARG_KEY = 'key';
 
     /**
      * @var ContextList
@@ -32,18 +31,18 @@ class AddCommand extends Command
     private $contextList;
 
     /**
-     * @var ClientFactory
+     * @var ShellFactory
      */
-    private $clientFactory;
+    private $sshFactory;
 
     /**
      * @param ContextList $contextList
-     * @param ClientFactory $clientFactory
+     * @param ShellFactory $shellFactory
      */
-    public function __construct(ContextList $contextList, ClientFactory $clientFactory)
+    public function __construct(ContextList $contextList, ShellFactory $shellFactory)
     {
         $this->contextList = $contextList;
-        $this->clientFactory = $clientFactory;
+        $this->sshFactory = $shellFactory;
 
         parent::__construct();
     }
@@ -53,50 +52,39 @@ class AddCommand extends Command
      */
     protected function configure(): void
     {
-        $this->setName('context:add')
+        $this->setName(self::NAME)
             ->setDescription('Add context')
-            ->addArgument(self::ARG_NAME, InputArgument::REQUIRED)
-            ->addArgument(self::ARG_URL, InputArgument::REQUIRED)
-            ->addArgument(self::ARG_KEY, InputArgument::REQUIRED);
+            ->addArgument(self::ARG_NAME, InputArgument::REQUIRED, 'Name of context')
+            ->addArgument(
+                self::ARG_TYPE,
+                InputArgument::REQUIRED,
+                'Type one of ' . implode(', ', [ShellFactory::TYPE_LOCAL, ShellFactory::TYPE_REMOTE]))
+            ->addArgument(self::ARG_URL, InputArgument::REQUIRED, 'URL address');
 
         parent::configure();
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      *
-     * @throws GuzzleException
+     * @throws \Exception
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $name = $input->getArgument(self::ARG_NAME);
 
-        $client = $this->clientFactory->create();
-        $response = $client->post(
+        $process = $this->sshFactory->create(
+            $input->getArgument(self::ARG_TYPE),
             $input->getArgument(self::ARG_URL),
-            $input->getArgument(self::ARG_KEY),
-            Client::TYPE_LIST,
-            []
+            'list --format=json'
         );
-
-        if ($response->getStatusCode() !== 200) {
-            throw new \RuntimeException($response->getBody()->getContents());
-        }
-
-        $commands = (array)json_decode(
-            $response->getBody()->getContents(),
-            JSON_OBJECT_AS_ARRAY
-        );
-
-        if (!$commands) {
-            throw new \RuntimeException('Commands are not defined');
-        }
+        $process->mustRun();
 
         $this->contextList->add(
             $name,
+            $input->getArgument(self::ARG_TYPE),
             $input->getArgument(self::ARG_URL),
-            $input->getArgument(self::ARG_KEY),
-            $commands
+            json_decode($process->getOutput(), true)['commands']
         );
 
         $output->writeln('<info>Context added.</info>');

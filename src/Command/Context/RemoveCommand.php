@@ -18,6 +18,7 @@ use Symfony\Component\Console\Output\OutputInterface;
  */
 class RemoveCommand extends Command
 {
+    private const NAME = 'context:remove';
     private const ARG_NAME = 'name';
 
     /**
@@ -40,7 +41,7 @@ class RemoveCommand extends Command
      */
     protected function configure(): void
     {
-        $this->setName('context:remove')
+        $this->setName(self::NAME)
             ->setDescription('Remove context')
             ->addArgument(self::ARG_NAME, InputArgument::REQUIRED);
 

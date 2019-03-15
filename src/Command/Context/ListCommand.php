@@ -52,8 +52,8 @@ class ListCommand extends Command
         foreach ($this->contextList->getAll() as $name => $data) {
             $rows[] = [
                 $name,
+                $data->get('type'),
                 $data->get('url'),
-                $data->get('key')
             ];
         }
 
@@ -64,7 +64,7 @@ class ListCommand extends Command
         }
 
         $table = new Table($output);
-        $table->setHeaders(['Name', 'URL', 'Key'])
+        $table->setHeaders(['Name', 'Type', 'URL'])
             ->setRows($rows)
             ->render();
     }

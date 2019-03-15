@@ -17,6 +17,8 @@ use Symfony\Component\Console\Output\OutputInterface;
  */
 class GetCommand extends Command
 {
+    private const NAME = 'context';
+
     /**
      * @var ContextList
      */
@@ -37,7 +39,7 @@ class GetCommand extends Command
      */
     protected function configure(): void
     {
-        $this->setName('context')
+        $this->setName(self::NAME)
             ->setDescription('Display current context');
 
         parent::configure();
